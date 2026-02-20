@@ -9,6 +9,18 @@ class TableName(Enum):
     EXPENSES_RECAP = 'expenses_recap'
     EXPENSES_MONTH_RECAP = 'month_recap'
     DEBT_CRED_RECAP = 'debt_cred_recap'
+    JANUARY_RECAP = 'january_recap'
+    FEBRUARY_RECAP = 'february_recap'
+    MARCH_RECAP = 'march_recap'
+    APRIL_RECAP = 'april_recap'
+    MAY_RECAP = 'may_recap'
+    JUNE_RECAP = 'june_recap'
+    JULY_RECAP = 'july_recap'
+    AUGUST_RECAP = 'august_recap'
+    SEPTEMBER_RECAP = 'september_recap'
+    OCTOBER_RECAP = 'october_recap'
+    NOVEMBER_RECAP = 'november_recap'
+    DECEMBER_RECAP = 'december_recap'
 
 
 class Operations(Enum):
@@ -76,7 +88,7 @@ class DatabaseManager:
 # --- Principal -----------------------------------------------------------
 
 '''This function initialize the database. It creates all the needed tables.'''
-def create_table(manager : DatabaseManager, cursor : sqlite3.Cursor, table: TableName, month_ind: int = 1) -> str:
+def create_table(manager : DatabaseManager, cursor : sqlite3.Cursor, table : TableName, month_ind : int = 1) -> str:
     match table:
         case TableName.MOVEMENT:
             # Table movements
@@ -114,7 +126,7 @@ def create_table(manager : DatabaseManager, cursor : sqlite3.Cursor, table: Tabl
         case TableName.EXPENSES_MONTH_RECAP:
             # Table monthly recap of expenses
             month_name = datetime(2020, int(month_ind), 1).strftime('%B').lower() + "_recap"
-
+            #TODO: bisogna che in base al numero del mese usi uno dei valori della TableNames legati ai mesi
             expenses_recap_columns = "Method_of_payment TEXT, " + ", ".join([f"{cat} REAL" for cat in manager.get_categories()])
             cursor.execute(f'''
                 create TABLE IF NOT EXISTS {month_name}(
@@ -238,7 +250,7 @@ def read_table(cursor : sqlite3.Cursor, table : TableName) -> None:
 
 #   --- --- --- --- --- --- --- --- 
 
-def expenses_recap(manager : DatabaseManager, cursor : sqlite3.Cursor, month = 0) -> None:
+def expenses_recap(manager : DatabaseManager, cursor : sqlite3.Cursor, month_ind = 0) -> None:
     """
     This function fills the table recap based on the table movement
     The month can be set to 'month_recap': in this case it fills all the recap tables filtered by the month.
@@ -264,11 +276,11 @@ def expenses_recap(manager : DatabaseManager, cursor : sqlite3.Cursor, month = 0
         id_cat =  manager.get_categories().index(category)
 
         # Changing the amount's sign if it's an exit
-        if movement == MovementTypes.EXIT.value:
+        if movement == MovementTypes.EXIT.value: #TODO capire perché nelle tablle con add va il valore e non il testo
             amount = - amount
 
         # Saving the amounts in an array for the table expenses_recap
-        if month:
+        if month_ind:
             # If filter month_recap is applied, then we use all the necessary matrices for the recap
             id_mon = datetime.strptime(date, '%Y-%m-%d').month
             recap_amount[id_mon-1][id_met][id_cat] += amount
@@ -277,8 +289,7 @@ def expenses_recap(manager : DatabaseManager, cursor : sqlite3.Cursor, month = 0
             # If no filter is applied, then we use only the first matrices
             recap_amount[0][id_met][id_cat] += amount
 
-    if not month:
-        print(month)
+    if not month_ind:
         delete_table(cursor, TableName.EXPENSES_RECAP)
         create_table(manager, cursor, TableName.EXPENSES_RECAP)
 
@@ -289,7 +300,7 @@ def expenses_recap(manager : DatabaseManager, cursor : sqlite3.Cursor, month = 0
             cursor.execute(query, values)
 
     
-    elif month == TableName.EXPENSES_MONTH_RECAP:
+    elif month_ind == TableName.EXPENSES_MONTH_RECAP:
         table = []
         for k in range(1, 13):
             table.insert(k-1, create_table(manager, cursor, TableName.EXPENSES_MONTH_RECAP, k))
@@ -303,19 +314,19 @@ def expenses_recap(manager : DatabaseManager, cursor : sqlite3.Cursor, month = 0
                 cursor.execute(query, values)
 
     else:
-        table = create_table(manager, cursor, TableName.EXPENSES_MONTH_RECAP, month)
+        table = create_table(manager, cursor, TableName.EXPENSES_MONTH_RECAP, month_ind)
         cursor.execute(f"DELETE FROM {table}")
-        cursor.execute(f"DELETE FROM sqlite_sequence WHERE name='{table}'")
+        cursor.execute(f"DELETE FROM sqlite_sequence WHERE name = '{table}'")
 
         for i in range(len(manager.get_methods_of_payment())):
                 query = f"INSERT INTO {table} ({q}) VALUES ({v})"
-                values = manager.get_methods_of_payment()[i], *recap_amount[month - 1][i][:]
+                values = manager.get_methods_of_payment()[i], *recap_amount[month_ind - 1][i][:]
 
                 cursor.execute(query, values)
 
 #   --- --- --- --- --- --- --- --- 
 
-def debt_cred_recap(manager: DatabaseManager, cursor: sqlite3.Cursor) -> None:
+def debt_cred_recap(manager : DatabaseManager, cursor : sqlite3.Cursor) -> None:
     """
     This function creates the table debt_carted_recap.
     Table 1st column: Subject name.
@@ -337,7 +348,7 @@ def debt_cred_recap(manager: DatabaseManager, cursor: sqlite3.Cursor) -> None:
     for row in rows:
         id_dc, date, category, description, subject, amount, paid, due, movement = row
         
-        if movement == MovementTypes.DEBT.value:
+        if movement == MovementTypes.DEBT.value: #TODO capire perché nelle tablle con add va il valore e non il testo
             due = - due
 
         if subject not in subject_names:

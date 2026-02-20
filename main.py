@@ -6,8 +6,7 @@ from expenses_functions import DatabaseManager, TableName, MovementTypes, Operat
 # --- Initialization of the program's constants ---
 
 # Set the Database name and path
-# DATABASE = database_saver.save_database()
-DATABASE = 'spese.db'
+DATABASE = database_saver.save_database('', 'spese.db')
 
 
 # This list may be modified
@@ -51,7 +50,7 @@ cursor: sqlite3.Cursor = connection.cursor()
 
 # expenses_functions.expenses_recap(manager, cursor)
 # expenses_functions.expenses_recap(manager, cursor, TableName.EXPENSES_MONTH_RECAP)
-expenses_functions.expenses_recap(manager, cursor, 1)
+# expenses_functions.expenses_recap(manager, cursor, 1)
 # expenses_functions.debt_cred_recap(manager, cursor)
 
 # -- Add row ---
@@ -70,18 +69,18 @@ expenses_functions.expenses_recap(manager, cursor, 1)
 # expenses_functions.modify_delete_row(cursor, Operations.DELETE, TableName.DEBT_CRED, 9)
 
 # --- Read Tables ---
-expenses_functions.read_table(cursor, TableName.MOVEMENT)
+# expenses_functions.read_table(cursor, TableName.MOVEMENT)
 # expenses_functions.read_table(cursor, TableName.DEBT_CRED)
 # expenses_functions.read_table(cursor, TableName.EXPENSES_RECAP)
 # expenses_functions.read_table(cursor, TableName.EXPENSES_MONTH_RECAP)
-# expenses_functions.read_table(cursor, 1)
+# expenses_functions.read_table(cursor, TableName.JANUARY_RECAP)
 # expenses_functions.read_table(cursor, TableName.DEBT_CRED_RECAP)
 
 # --- Delete Tables ---
-# expenses_functions.delete_table(cursor, 'movement')
-# expenses_functions.delete_table(cursor, 'debt_cred')
-# expenses_functions.delete_table(cursor, 'expenses_recap')
-# expenses_functions.delete_table(cursor, 'debt_cred_recap')
+# expenses_functions.delete_table(cursor, TableName.MOVEMENT)
+# expenses_functions.delete_table(cursor, TableName.DEBT_CRED)
+# expenses_functions.delete_table(cursor, TableName.EXPENSES_RECAP)
+# expenses_functions.delete_table(cursor, TableName.DEBT_CRED_RECAP)
 # expenses_functions.delete_table(cursor, 'january_recap')
 # expenses_functions.delete_table(cursor, 'february_recap')
 # expenses_functions.delete_table(cursor, 'march_recap')

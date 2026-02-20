@@ -29,9 +29,14 @@ def save_database(folder_name: str = None, base_name: str = None) -> Path:
 
     clean_name = Path(name).stem
     file_path : Path = Path.joinpath(target_dir, f"{clean_name}.db")
+    
 
     counter = 1
     while file_path.exists():
+        if counter == 1:
+            answer = input("Il database esiste già. Vuoi crearne uno nuovo? [Y/N]: ").upper()
+        if answer == 'N':
+            break
         file_path = Path.joinpath(target_dir, f"{clean_name}_{counter}.db")
         counter += 1
 
